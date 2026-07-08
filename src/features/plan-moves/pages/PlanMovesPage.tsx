@@ -5,6 +5,10 @@ import { MoveCanvas } from '../components/MoveCanvas';
 import { MoveForm } from '../components/MoveForm';
 import { Button } from '../../../shared/components';
 import type { MoveCategory, MovePath } from '../types';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import Chip from '@mui/material/Chip';
 
 export function PlanMovesPage() {
   const {
@@ -36,75 +40,92 @@ export function PlanMovesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Plan Moves</h1>
-        <p className="text-gray-500 mt-1">Create and visualize tactical plays for your team.</p>
-      </div>
+      <Box>
+        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>Plan Moves</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Create and visualize tactical plays for your team.
+        </Typography>
+      </Box>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <Grid container spacing={3}>
         {/* Moves list (left column) */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-800">Playbook ({moves.length})</h2>
-            <Button size="sm" onClick={() => setShowForm(true)}>+ New Move</Button>
-          </div>
+        <Grid size={{ xs: 12, lg: 5 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>Playbook ({moves.length})</Typography>
+              <Button size="sm" onClick={() => setShowForm(true)}>+ New Move</Button>
+            </Box>
 
-          {showForm && (
-            <MoveForm
-              onSubmit={handleCreateMove}
-              onCancel={() => setShowForm(false)}
+            {showForm && (
+              <MoveForm
+                onSubmit={handleCreateMove}
+                onCancel={() => setShowForm(false)}
+              />
+            )}
+
+            <MoveList
+              moves={moves}
+              selectedId={selectedMoveId}
+              onSelect={setSelectedMoveId}
+              onDelete={deleteMove}
+              filterCategory={filterCategory}
+              onFilterChange={setFilterCategory}
             />
-          )}
-
-          <MoveList
-            moves={moves}
-            selectedId={selectedMoveId}
-            onSelect={setSelectedMoveId}
-            onDelete={deleteMove}
-            filterCategory={filterCategory}
-            onFilterChange={setFilterCategory}
-          />
-        </div>
+          </Box>
+        </Grid>
 
         {/* Canvas / detail (right column) */}
-        <div className="lg:col-span-3 space-y-4">
-          {!selectedMove ? (
-            <div className="flex flex-col items-center justify-center h-80 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 text-gray-400">
-              <span className="text-5xl mb-3">📋</span>
-              <p className="font-medium">Select a move to edit its diagram</p>
-              <p className="text-sm">or create a new one from the playbook</p>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">{selectedMove.name}</h2>
-                  <p className="text-sm text-gray-500 mt-0.5">{selectedMove.description}</p>
-                  {selectedMove.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {selectedMove.tags.map((t) => (
-                        <span key={t} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">
-                          #{t}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <Button variant="secondary" size="sm" onClick={() => setSelectedMoveId(null)}>
-                  Close
-                </Button>
-              </div>
+        <Grid size={{ xs: 12, lg: 7 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {!selectedMove ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 320,
+                  border: '2px dashed',
+                  borderColor: 'divider',
+                  borderRadius: 3,
+                  bgcolor: 'grey.50',
+                  color: 'text.secondary',
+                }}
+              >
+                <Typography variant="h2" component="span" sx={{ mb: 1.5 }}>📋</Typography>
+                <Typography variant="body1" sx={{ fontWeight: 500 }}>Select a move to edit its diagram</Typography>
+                <Typography variant="body2">or create a new one from the playbook</Typography>
+              </Box>
+            ) : (
+              <>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}>
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{selectedMove.name}</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{selectedMove.description}</Typography>
+                    {selectedMove.tags.length > 0 && (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1 }}>
+                        {selectedMove.tags.map((t) => (
+                          <Chip key={t} label={`#${t}`} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.7rem' }} />
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
+                  <Button variant="secondary" size="sm" onClick={() => setSelectedMoveId(null)}>
+                    Close
+                  </Button>
+                </Box>
 
-              <MoveCanvas
-                paths={selectedMove.paths}
-                onChange={handlePathsChange}
-              />
-            </>
-          )}
-        </div>
-      </div>
-    </div>
+                <MoveCanvas
+                  paths={selectedMove.paths}
+                  onChange={handlePathsChange}
+                />
+              </>
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

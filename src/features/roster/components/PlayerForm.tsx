@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import type { Player, PlayerPosition } from '../../../shared/types';
 import { Button } from '../../../shared/components';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 const positions: PlayerPosition[] = ['attacker', 'defender', 'catcher', 'center', 'bench'];
 
@@ -23,69 +31,51 @@ export function PlayerForm({ initial, onSubmit, onCancel }: PlayerFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Full Name
-        </label>
-        <input
-          type="text"
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Player name"
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Jersey Number
-        </label>
-        <input
-          type="number"
-          required
-          min={1}
-          max={99}
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-          placeholder="1–99"
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Position
-        </label>
-        <select
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <TextField
+        label="Full Name"
+        required
+        fullWidth
+        size="small"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Player name"
+      />
+      <TextField
+        label="Jersey Number"
+        required
+        fullWidth
+        size="small"
+        type="number"
+        slotProps={{ htmlInput: { min: 1, max: 99 } }}
+        value={number}
+        onChange={(e) => setNumber(e.target.value)}
+        placeholder="1–99"
+      />
+      <FormControl fullWidth size="small">
+        <InputLabel>Position</InputLabel>
+        <Select
           value={position}
+          label="Position"
           onChange={(e) => setPosition(e.target.value as PlayerPosition)}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           {positions.map((p) => (
-            <option key={p} value={p}>
+            <MenuItem key={p} value={p}>
               {p.charAt(0).toUpperCase() + p.slice(1)}
-            </option>
+            </MenuItem>
           ))}
-        </select>
-      </div>
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="isActive"
-          checked={isActive}
-          onChange={(e) => setIsActive(e.target.checked)}
-          className="rounded"
-        />
-        <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-          Active player
-        </label>
-      </div>
-      <div className="flex gap-2 justify-end pt-2">
+        </Select>
+      </FormControl>
+      <FormControlLabel
+        control={<Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />}
+        label="Active player"
+      />
+      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 1 }}>
         <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="submit">Save Player</Button>
-      </div>
-    </form>
+      </Box>
+    </Box>
   );
 }

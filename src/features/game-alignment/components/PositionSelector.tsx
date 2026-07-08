@@ -1,6 +1,14 @@
 import type { Player } from '../types';
 import { getPositionColor, getPositionLabel } from '../../../shared/utils';
 import { COURT_POSITIONS } from './courtConfig';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import Avatar from '@mui/material/Avatar';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
 
 interface PositionSelectorProps {
   selectedPositionId: string | null;
@@ -29,51 +37,51 @@ export function PositionSelector({
   if (!position) return null;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-gray-800">{position.label}</h3>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg">×</button>
-      </div>
+    <Paper variant="outlined" sx={{ p: 2, borderRadius: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{position.label}</Typography>
+        <IconButton size="small" onClick={onClose}>✕</IconButton>
+      </Box>
 
       {currentAssignment && (
-        <button
+        <Button
+          variant="outlined"
+          color="error"
+          size="small"
+          fullWidth
           onClick={onClear}
-          className="w-full text-left px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 border border-red-200 flex items-center gap-2"
+          sx={{ justifyContent: 'flex-start', gap: 1 }}
         >
-          <span>🗑️</span> Remove player
-        </button>
+          🗑️ Remove player
+        </Button>
       )}
 
-      <div className="space-y-1 max-h-48 overflow-y-auto">
+      <List disablePadding sx={{ maxHeight: 200, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {availablePlayers.length === 0 && (
-          <p className="text-gray-400 text-sm text-center py-2">No available players</p>
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 1 }}>
+            No available players
+          </Typography>
         )}
         {availablePlayers.map((p) => {
           const isAssigned = p.id === currentAssignment;
           return (
-            <button
+            <ListItemButton
               key={p.id}
               onClick={() => onAssign(p.id)}
-              className={`w-full text-left px-3 py-2 rounded-md text-sm flex items-center gap-2.5 transition-colors ${
-                isAssigned
-                  ? 'bg-indigo-50 border border-indigo-300 text-indigo-700'
-                  : 'hover:bg-gray-50 border border-transparent'
-              }`}
+              selected={isAssigned}
+              sx={{ borderRadius: 1.5, gap: 1.5, py: 0.75 }}
             >
-              <span
-                className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                style={{ backgroundColor: getPositionColor(p.position) }}
+              <Avatar
+                sx={{ width: 28, height: 28, bgcolor: getPositionColor(p.position), fontSize: '0.75rem', fontWeight: 700 }}
               >
                 {p.number}
-              </span>
-              <span className="font-medium text-gray-800">{p.name}</span>
-              <span className="ml-auto text-xs text-gray-400">
-                {getPositionLabel(p.position)}
-              </span>
-            </button>
+              </Avatar>
+              <Typography variant="body2" sx={{ fontWeight: 500, flex: 1 }}>{p.name}</Typography>
+              <Typography variant="caption" color="text.secondary">{getPositionLabel(p.position)}</Typography>
+            </ListItemButton>
           );
         })}
-      </div>
-    </div>
+      </List>
+    </Paper>
   );
 }

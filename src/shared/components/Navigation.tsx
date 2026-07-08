@@ -1,4 +1,9 @@
 import { NavLink } from 'react-router-dom';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: '🏠' },
@@ -9,34 +14,43 @@ const navItems = [
 
 export function Navigation() {
   return (
-    <nav className="bg-indigo-700 text-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🏐</span>
-            <span className="font-bold text-xl tracking-tight">CatchCoach</span>
-          </div>
-          <div className="flex gap-1">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.path === '/'}
-                className={({ isActive }) =>
-                  `flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-indigo-900 text-white'
-                      : 'text-indigo-100 hover:bg-indigo-600'
-                  }`
-                }
-              >
-                <span>{item.icon}</span>
-                <span className="hidden sm:inline">{item.label}</span>
-              </NavLink>
-            ))}
-          </div>
-        </div>
-      </div>
-    </nav>
+    <AppBar position="static" sx={{ bgcolor: 'primary.main' }}>
+      <Toolbar sx={{ maxWidth: 'xl', width: '100%', mx: 'auto', px: { xs: 2, sm: 3 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 4 }}>
+          <Typography variant="h6" component="span">🏐</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', letterSpacing: '-0.5px' }}>
+            CatchCoach
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.path === '/'}
+              style={{ textDecoration: 'none' }}
+            >
+              {({ isActive }) => (
+                <Button
+                  size="small"
+                  sx={{
+                    color: 'white',
+                    bgcolor: isActive ? 'primary.dark' : 'transparent',
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.15)' },
+                    fontWeight: isActive ? 700 : 500,
+                    gap: 0.75,
+                  }}
+                >
+                  <span>{item.icon}</span>
+                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                    {item.label}
+                  </Box>
+                </Button>
+              )}
+            </NavLink>
+          ))}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }
