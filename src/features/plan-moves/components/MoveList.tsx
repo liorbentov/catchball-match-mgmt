@@ -100,7 +100,7 @@ export function MoveList({
                     />
                   </Box>
                   <Typography variant="caption" color="text.secondary"
-                    sx={{ display: 'block', mt: 0.5, overflow: 'hidden', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+                    sx={{ display: '-webkit-box', mt: 0.5, overflow: 'hidden', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
                   >
                     {m.description}
                   </Typography>
