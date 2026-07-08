@@ -1,4 +1,4 @@
-import { useLocalStorage } from '../../../shared/hooks/useLocalStorage';
+import { useFirestoreStorage } from '../../../shared/hooks/useFirestoreStorage';
 import { generateId } from '../../../shared/utils';
 import type { Player, Season, Game } from '../types';
 
@@ -15,10 +15,10 @@ const DEMO_PLAYERS: Player[] = []
 const DEMO_GAMES: Game[] = []
 
 export function useRoster() {
-  const [players, setPlayers] = useLocalStorage<Player[]>('roster-players', DEMO_PLAYERS);
-  const [seasons, setSeasons] = useLocalStorage<Season[]>('roster-seasons', [DEMO_SEASON]);
-  const [games, setGames] = useLocalStorage<Game[]>('roster-games', DEMO_GAMES);
-  const [selectedSeasonId, setSelectedSeasonId] = useLocalStorage<string>(
+  const [players, setPlayers] = useFirestoreStorage<Player[]>('roster-players', DEMO_PLAYERS);
+  const [seasons, setSeasons] = useFirestoreStorage<Season[]>('roster-seasons', [DEMO_SEASON]);
+  const [games, setGames] = useFirestoreStorage<Game[]>('roster-games', DEMO_GAMES);
+  const [selectedSeasonId, setSelectedSeasonId] = useFirestoreStorage<string>(
     'roster-selected-season',
     DEMO_SEASON.id
   );
