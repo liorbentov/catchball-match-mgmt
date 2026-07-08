@@ -1,4 +1,4 @@
-import { CourtPosition } from '../types';
+import type { CourtPosition } from '../types';
 
 // Standard catchball court positions (6v6 format)
 // The court is divided into: attack zone (front), center, defense zone (back)

@@ -1,4 +1,4 @@
-import { Move, MoveCategory } from '../types';
+import type { Move, MoveCategory } from '../types';
 import { Button } from '../../../shared/components';
 
 const CATEGORY_COLORS: Record<MoveCategory, string> = {

@@ -1,4 +1,4 @@
-import { Player, CourtPosition, PlayerAssignment } from '../types';
+import type { Player, CourtPosition, PlayerAssignment } from '../types';
 import { getPositionColor } from '../../../shared/utils';
 
 interface CourtProps {

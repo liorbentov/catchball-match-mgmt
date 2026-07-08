@@ -1,4 +1,4 @@
-import { Player, Season, Game } from '../../shared/types';
+import type { Player, Season, Game } from '../../../shared/types';
 
 export type { Player, Season, Game };
 

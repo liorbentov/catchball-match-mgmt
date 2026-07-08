@@ -4,7 +4,7 @@ import { MoveList } from '../components/MoveList';
 import { MoveCanvas } from '../components/MoveCanvas';
 import { MoveForm } from '../components/MoveForm';
 import { Button } from '../../../shared/components';
-import { MoveCategory, MovePath } from '../types';
+import type { MoveCategory, MovePath } from '../types';
 
 export function PlanMovesPage() {
   const {

@@ -1,4 +1,4 @@
-import { Player, CourtPosition } from '../types';
+import type { Player } from '../types';
 import { getPositionColor, getPositionLabel } from '../../../shared/utils';
 import { COURT_POSITIONS } from './courtConfig';
 
