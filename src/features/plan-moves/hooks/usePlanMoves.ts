@@ -1,4 +1,4 @@
-import { useLocalStorage } from '../../../shared/hooks/useLocalStorage';
+import { useFirestoreStorage } from '../../../shared/hooks/useFirestoreStorage';
 import { generateId } from '../../../shared/utils';
 import type { Move, MovePath } from '../types';
 
@@ -33,8 +33,8 @@ const DEMO_MOVES: Move[] = [
 ];
 
 export function usePlanMoves() {
-  const [moves, setMoves] = useLocalStorage<Move[]>('plan-moves', DEMO_MOVES);
-  const [selectedMoveId, setSelectedMoveId] = useLocalStorage<string | null>('selected-move', null);
+  const [moves, setMoves] = useFirestoreStorage<Move[]>('plan-moves', DEMO_MOVES);
+  const [selectedMoveId, setSelectedMoveId] = useFirestoreStorage<string | null>('selected-move', null);
 
   const selectedMove = moves.find((m) => m.id === selectedMoveId) ?? null;
 

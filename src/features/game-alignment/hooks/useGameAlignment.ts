@@ -1,14 +1,14 @@
-import { useLocalStorage } from '../../../shared/hooks/useLocalStorage';
+import { useFirestoreStorage } from '../../../shared/hooks/useFirestoreStorage';
 import { generateId } from '../../../shared/utils';
 import type { GameAlignment } from '../types';
 import { getCourtPosition } from '../components/courtConfig';
 
 export function useGameAlignment() {
-  const [alignments, setAlignments] = useLocalStorage<GameAlignment[]>(
+  const [alignments, setAlignments] = useFirestoreStorage<GameAlignment[]>(
     'game-alignments',
     []
   );
-  const [activeAlignmentId, setActiveAlignmentId] = useLocalStorage<string | null>(
+  const [activeAlignmentId, setActiveAlignmentId] = useFirestoreStorage<string | null>(
     'active-alignment-id',
     null
   );
