@@ -1,7 +1,7 @@
 import { useLocalStorage } from '../../../shared/hooks/useLocalStorage';
 import { generateId } from '../../../shared/utils';
 import type { GameAlignment } from '../types';
-import { COURT_POSITIONS } from '../components/courtConfig';
+import { getCourtPosition } from '../components/courtConfig';
 
 export function useGameAlignment() {
   const [alignments, setAlignments] = useLocalStorage<GameAlignment[]>(
@@ -35,26 +35,24 @@ export function useGameAlignment() {
     }
   }
 
-  function assignPlayer(positionId: string, playerId: string) {
+  function assignPlayer(playerId: string, x: number, y: number) {
     if (!activeAlignmentId) return;
+    const courtPosition = getCourtPosition(x, y);
     setAlignments((prev) =>
       prev.map((a) => {
         if (a.id !== activeAlignmentId) return a;
-        const filtered = a.assignments.filter((x) => x.positionId !== positionId && x.playerId !== playerId);
-        return {
-          ...a,
-          assignments: [...filtered, { positionId, playerId }],
-        };
+        const filtered = a.assignments.filter((s) => s.playerId !== playerId);
+        return { ...a, assignments: [...filtered, { playerId, x, y, courtPosition }] };
       })
     );
   }
 
-  function clearPosition(positionId: string) {
+  function clearPosition(playerId: string) {
     if (!activeAlignmentId) return;
     setAlignments((prev) =>
       prev.map((a) =>
         a.id === activeAlignmentId
-          ? { ...a, assignments: a.assignments.filter((x) => x.positionId !== positionId) }
+          ? { ...a, assignments: a.assignments.filter((s) => s.playerId !== playerId) }
           : a
       )
     );
@@ -74,7 +72,6 @@ export function useGameAlignment() {
     activeAlignment,
     activeAlignmentId,
     setActiveAlignmentId,
-    courtPositions: COURT_POSITIONS,
     createAlignment,
     deleteAlignment,
     assignPlayer,

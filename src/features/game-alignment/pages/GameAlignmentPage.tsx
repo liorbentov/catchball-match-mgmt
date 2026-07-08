@@ -2,18 +2,18 @@ import { useState } from 'react';
 import { useGameAlignment } from '../hooks/useGameAlignment';
 import { useRoster } from '../../roster/hooks/useRoster';
 import { Court } from '../components/Court';
-import { PositionSelector } from '../components/PositionSelector';
 import { Button } from '../../../shared/components';
+import { getPositionColor } from '../../../shared/utils';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
 import Avatar from '@mui/material/Avatar';
-import ListItemText from '@mui/material/ListItemText';
+import Tooltip from '@mui/material/Tooltip';
+
+const ALL_COURT_POSITIONS = [1, 2, 3, 4, 5, 6] as const;
 
 export function GameAlignmentPage() {
   const {
@@ -21,7 +21,6 @@ export function GameAlignmentPage() {
     activeAlignment,
     activeAlignmentId,
     setActiveAlignmentId,
-    courtPositions,
     createAlignment,
     deleteAlignment,
     assignPlayer,
@@ -30,14 +29,13 @@ export function GameAlignmentPage() {
   } = useGameAlignment();
 
   const { players } = useRoster();
-  const [selectedPositionId, setSelectedPositionId] = useState<string | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
   const [newAlignmentName, setNewAlignmentName] = useState('');
 
-  const assignedPlayerIds = activeAlignment?.assignments.map((a) => a.playerId) ?? [];
-  const currentPositionAssignment = selectedPositionId
-    ? activeAlignment?.assignments.find((a) => a.positionId === selectedPositionId)?.playerId
-    : undefined;
+  const assignments = activeAlignment?.assignments ?? [];
+  const assignedPlayerIds = new Set(assignments.map((a) => a.playerId));
+  const activePlayers = players.filter((p) => p.isActive);
+  const benchPlayers = activePlayers.filter((p) => !assignedPlayerIds.has(p.id));
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -45,12 +43,6 @@ export function GameAlignmentPage() {
     createAlignment(newAlignmentName.trim());
     setNewAlignmentName('');
     setShowNewForm(false);
-    setSelectedPositionId(null);
-  }
-
-  function handlePositionClick(positionId: string) {
-    if (!activeAlignmentId) return;
-    setSelectedPositionId((prev) => (prev === positionId ? null : positionId));
   }
 
   return (
@@ -59,23 +51,22 @@ export function GameAlignmentPage() {
       <Box>
         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>Game Alignment</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Set player positions on the catchball court.
+          Drag players from the bench onto the court to set their positions.
         </Typography>
       </Box>
 
       {/* Alignment selector */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
         {alignments.map((a) => (
-          <Box key={a.id} sx={{ display: 'flex', alignItems: 'center' }}>
-            <Chip
-              label={a.name}
-              onClick={() => { setActiveAlignmentId(a.id); setSelectedPositionId(null); }}
-              onDelete={() => deleteAlignment(a.id)}
-              color={activeAlignmentId === a.id ? 'primary' : 'default'}
-              variant={activeAlignmentId === a.id ? 'filled' : 'outlined'}
-              clickable
-            />
-          </Box>
+          <Chip
+            key={a.id}
+            label={a.name}
+            onClick={() => setActiveAlignmentId(a.id)}
+            onDelete={() => deleteAlignment(a.id)}
+            color={activeAlignmentId === a.id ? 'primary' : 'default'}
+            variant={activeAlignmentId === a.id ? 'filled' : 'outlined'}
+            clickable
+          />
         ))}
         <Button variant="ghost" size="sm" onClick={() => setShowNewForm(true)}>
           + New Alignment
@@ -123,89 +114,165 @@ export function GameAlignmentPage() {
           <Grid size={{ xs: 12, lg: 8 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>{activeAlignment?.name}</Typography>
-              <Button variant="secondary" size="sm" onClick={clearAll}>
+              <Button variant="secondary" size="sm" onClick={clearAll} disabled={assignments.length === 0}>
                 Clear All
               </Button>
             </Box>
             <Court
-              positions={courtPositions}
-              assignments={activeAlignment?.assignments ?? []}
+              assignments={assignments}
               players={players}
-              onPositionClick={handlePositionClick}
-              selectedPositionId={selectedPositionId}
+              onPlayerDrop={(playerId, x, y) => assignPlayer(playerId, x, y)}
+              onPlayerRemove={(playerId) => clearPosition(playerId)}
             />
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
-              Click a position slot to assign a player
+              Drag players from the bench onto the court · Double-click a player to remove them
             </Typography>
           </Grid>
 
           {/* Sidebar */}
           <Grid size={{ xs: 12, lg: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {selectedPositionId ? (
-                <PositionSelector
-                  selectedPositionId={selectedPositionId}
-                  players={players}
-                  assignedPlayerIds={assignedPlayerIds}
-                  currentAssignment={currentPositionAssignment}
-                  onAssign={(playerId) => {
-                    assignPlayer(selectedPositionId, playerId);
-                    setSelectedPositionId(null);
-                  }}
-                  onClear={() => {
-                    clearPosition(selectedPositionId);
-                    setSelectedPositionId(null);
-                  }}
-                  onClose={() => setSelectedPositionId(null)}
-                />
-              ) : (
-                <Paper variant="outlined" sx={{ p: 2, borderRadius: 3 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1.5 }}>Lineup Summary</Typography>
-                  {(activeAlignment?.assignments.length ?? 0) === 0 ? (
-                    <Typography variant="body2" color="text.secondary">No players assigned yet.</Typography>
-                  ) : (
-                    <List disablePadding sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      {activeAlignment?.assignments.map((a) => {
-                        const p = players.find((x) => x.id === a.playerId);
-                        const pos = courtPositions.find((x) => x.id === a.positionId);
-                        if (!p || !pos) return null;
-                        return (
-                          <ListItem key={a.positionId} disablePadding sx={{ gap: 1 }}>
-                            <Avatar sx={{ width: 24, height: 24, bgcolor: 'primary.light', fontSize: '0.7rem', fontWeight: 700 }}>
-                              {p.number}
-                            </Avatar>
-                            <ListItemText
-                              primary={p.name}
-                              secondary={pos.label}
-                              slotProps={{
-                                primary: { style: { fontSize: '0.875rem', fontWeight: 500 } },
-                                secondary: { style: { fontSize: '0.75rem' } },
-                              }}
-                            />
-                          </ListItem>
-                        );
-                      })}
-                    </List>
-                  )}
-                </Paper>
-              )}
 
-              {/* Legend */}
+              {/* Player bench */}
               <Paper variant="outlined" sx={{ p: 2, borderRadius: 3 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1.5 }}>Court Zones</Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1.5 }}>
+                  Player Bench
+                  {benchPlayers.length > 0 && (
+                    <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                      ({benchPlayers.length} available)
+                    </Typography>
+                  )}
+                </Typography>
+                {benchPlayers.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    {activePlayers.length === 0 ? 'No active players in roster.' : 'All players are on the court.'}
+                  </Typography>
+                ) : (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {benchPlayers.map((p) => (
+                      <Tooltip key={p.id} title={`${p.name} — drag onto the court`} placement="top">
+                        <Avatar
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData('playerId', p.id);
+                            e.dataTransfer.effectAllowed = 'move';
+                          }}
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            bgcolor: getPositionColor(p.position),
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            cursor: 'grab',
+                            border: '2px solid',
+                            borderColor: 'divider',
+                            '&:hover': { transform: 'scale(1.1)', transition: 'transform 0.15s' },
+                          }}
+                        >
+                          {p.number}
+                        </Avatar>
+                      </Tooltip>
+                    ))}
+                  </Box>
+                )}
+              </Paper>
+
+              {/* Lineup summary */}
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 3 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1.5 }}>
+                  Lineup Summary
+                </Typography>
+                {assignments.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">No players on court yet.</Typography>
+                ) : (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                    {ALL_COURT_POSITIONS.map((pos) => {
+                      const assignment = assignments.find((a) => a.courtPosition === pos);
+                      const player = assignment ? players.find((p) => p.id === assignment.playerId) : null;
+                      return (
+                        <Box key={pos} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <Box
+                            sx={{
+                              width: 28,
+                              height: 28,
+                              borderRadius: '50%',
+                              bgcolor: 'action.hover',
+                              border: '1px solid',
+                              borderColor: 'divider',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              color: 'text.secondary',
+                              flexShrink: 0,
+                            }}
+                          >
+                            {pos}
+                          </Box>
+                          {player ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Avatar
+                                sx={{
+                                  width: 28,
+                                  height: 28,
+                                  bgcolor: getPositionColor(player.position),
+                                  fontSize: '0.7rem',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {player.number}
+                              </Avatar>
+                              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                #{player.number}
+                              </Typography>
+                            </Box>
+                          ) : (
+                            <Typography variant="body2" color="text.disabled">—</Typography>
+                          )}
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                )}
+              </Paper>
+
+              {/* Position legend */}
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 3 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>Position Guide</Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5 }}>
                   {[
-                    { color: '#fca5a5', label: 'Attack Zone — front row' },
-                    { color: '#fed7aa', label: 'Center — mid court' },
-                    { color: '#93c5fd', label: 'Defense Zone — back row' },
-                  ].map(({ color, label }) => (
-                    <Box key={label} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box sx={{ width: 12, height: 12, borderRadius: 0.5, bgcolor: color, flexShrink: 0 }} />
-                      <Typography variant="body2">{label}</Typography>
+                    { pos: 4, label: 'Front Left' },
+                    { pos: 3, label: 'Front Center' },
+                    { pos: 2, label: 'Front Right' },
+                    { pos: 5, label: 'Back Left' },
+                    { pos: 6, label: 'Back Center' },
+                    { pos: 1, label: 'Back Right' },
+                  ].map(({ pos, label }) => (
+                    <Box key={pos} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: '50%',
+                          bgcolor: 'primary.main',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          color: 'white',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {pos}
+                      </Box>
+                      <Typography variant="caption" color="text.secondary">{label}</Typography>
                     </Box>
                   ))}
                 </Box>
               </Paper>
+
             </Box>
           </Grid>
         </Grid>
@@ -213,3 +280,4 @@ export function GameAlignmentPage() {
     </Box>
   );
 }
+
