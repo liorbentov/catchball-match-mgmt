@@ -10,22 +10,9 @@ const DEMO_SEASON: Season = {
   isActive: true,
 };
 
-const DEMO_PLAYERS: Player[] = [
-  { id: 'p1', name: 'Alex Cohen', number: 1, position: 'catcher', isActive: true },
-  { id: 'p2', name: 'Maya Levi', number: 2, position: 'attacker', isActive: true },
-  { id: 'p3', name: 'Yoni Mizrahi', number: 3, position: 'defender', isActive: true },
-  { id: 'p4', name: 'Tali Ben-David', number: 4, position: 'center', isActive: true },
-  { id: 'p5', name: 'Ori Shapiro', number: 5, position: 'attacker', isActive: true },
-  { id: 'p6', name: 'Dana Katz', number: 6, position: 'defender', isActive: true },
-  { id: 'p7', name: 'Idan Gross', number: 7, position: 'catcher', isActive: true },
-  { id: 'p8', name: 'Noa Peretz', number: 8, position: 'bench', isActive: false },
-];
+const DEMO_PLAYERS: Player[] = []
 
-const DEMO_GAMES: Game[] = [
-  { id: 'g1', seasonId: 'season-1', opponent: 'Eagles FC', date: '2025-07-10', location: 'Home Court', isHome: true },
-  { id: 'g2', seasonId: 'season-1', opponent: 'Sharks United', date: '2025-07-17', location: 'Away Arena', isHome: false },
-  { id: 'g3', seasonId: 'season-1', opponent: 'Lions Club', date: '2025-07-24', location: 'Home Court', isHome: true },
-];
+const DEMO_GAMES: Game[] = []
 
 export function useRoster() {
   const [players, setPlayers] = useLocalStorage<Player[]>('roster-players', DEMO_PLAYERS);
