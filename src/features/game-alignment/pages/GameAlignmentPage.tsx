@@ -11,7 +11,6 @@ import TextField from '@mui/material/TextField';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
 import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
 
 const ALL_COURT_POSITIONS = [1, 2, 3, 4, 5, 6] as const;
 
@@ -148,30 +147,45 @@ export function GameAlignmentPage() {
                     {activePlayers.length === 0 ? 'No active players in roster.' : 'All players are on the court.'}
                   </Typography>
                 ) : (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                     {benchPlayers.map((p) => (
-                      <Tooltip key={p.id} title={`${p.name} — drag onto the court`} placement="top">
+                      <Box
+                        key={p.id}
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('playerId', p.id);
+                          e.dataTransfer.effectAllowed = 'move';
+                        }}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.25,
+                          cursor: 'grab',
+                          '&:active': { cursor: 'grabbing' },
+                          borderRadius: 2,
+                          px: 1,
+                          py: 0.5,
+                          '&:hover': { bgcolor: 'action.hover' },
+                        }}
+                      >
                         <Avatar
-                          draggable
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData('playerId', p.id);
-                            e.dataTransfer.effectAllowed = 'move';
-                          }}
                           sx={{
-                            width: 40,
-                            height: 40,
+                            width: 36,
+                            height: 36,
                             bgcolor: getPositionColor(p.position),
                             fontSize: '0.8rem',
                             fontWeight: 700,
-                            cursor: 'grab',
                             border: '2px solid',
                             borderColor: 'divider',
-                            '&:hover': { transform: 'scale(1.1)', transition: 'transform 0.15s' },
+                            flexShrink: 0,
                           }}
                         >
                           {p.number}
                         </Avatar>
-                      </Tooltip>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {p.name}
+                        </Typography>
+                      </Box>
                     ))}
                   </Box>
                 )}
