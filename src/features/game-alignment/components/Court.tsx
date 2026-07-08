@@ -1,88 +1,147 @@
-import type { Player, CourtPosition, PlayerAssignment } from '../types';
+import { useRef } from 'react';
+import type { Player, PlayerAssignment } from '../types';
 import { getPositionColor } from '../../../shared/utils';
 
 interface CourtProps {
-  positions: CourtPosition[];
   assignments: PlayerAssignment[];
   players: Player[];
-  onPositionClick: (positionId: string) => void;
-  selectedPositionId: string | null;
+  onPlayerDrop: (playerId: string, x: number, y: number) => void;
+  onPlayerRemove: (playerId: string) => void;
 }
 
-export function Court({
-  positions,
-  assignments,
-  players,
-  onPositionClick,
-  selectedPositionId,
-}: CourtProps) {
-  function getPlayerForPosition(positionId: string): Player | undefined {
-    const a = assignments.find((a) => a.positionId === positionId);
-    return a ? players.find((p) => p.id === a.playerId) : undefined;
+// Position watermarks: label, center-x, center-y (in SVG viewBox units 0-100)
+const POSITION_LABELS: { pos: number; x: number; y: number }[] = [
+  { pos: 4, x: 16, y: 25 },
+  { pos: 3, x: 50, y: 25 },
+  { pos: 2, x: 84, y: 25 },
+  { pos: 5, x: 16, y: 75 },
+  { pos: 6, x: 50, y: 75 },
+  { pos: 1, x: 84, y: 75 },
+];
+
+// Court boundary clamp limits (in % of the container).
+// These match the SVG court border drawn at x=3/97 and y=5/95.
+const CLAMP_X_MIN = 3;
+const CLAMP_X_MAX = 97;
+const CLAMP_Y_MIN = 5;
+const CLAMP_Y_MAX = 95;
+
+// Vertical zone boundary (must match getCourtPosition thresholds in courtConfig.ts)
+const ZONE_X_LEFT = 33;
+const ZONE_X_RIGHT = 66;
+
+export function Court({ assignments, players, onPlayerDrop, onPlayerRemove }: CourtProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }
+
+  function handleDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    const playerId = e.dataTransfer.getData('playerId');
+    if (!playerId || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = Math.max(CLAMP_X_MIN, Math.min(CLAMP_X_MAX, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(CLAMP_Y_MIN, Math.min(CLAMP_Y_MAX, ((e.clientY - rect.top) / rect.height) * 100));
+    onPlayerDrop(playerId, x, y);
   }
 
   return (
-    <div className="relative w-full" style={{ paddingBottom: '130%' }}>
-      {/* Court background */}
+    <div style={{ position: 'relative', width: '100%', paddingBottom: '100%' }}>
       <div
-        className="absolute inset-0 rounded-xl border-4 border-indigo-400 overflow-hidden"
-        style={{
-          background: 'linear-gradient(180deg, #4f46e5 0%, #6366f1 50%, #4f46e5 100%)',
-        }}
+        ref={containerRef}
+        style={{ position: 'absolute', inset: 0 }}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
       >
-        {/* Court lines */}
-        {/* Center line */}
-        <div className="absolute left-0 right-0 border-t-2 border-white border-opacity-60" style={{ top: '50%' }} />
-        {/* Attack zone line */}
-        <div className="absolute left-0 right-0 border-t border-white border-opacity-30 border-dashed" style={{ top: '33%' }} />
-        {/* Defense zone line */}
-        <div className="absolute left-0 right-0 border-t border-white border-opacity-30 border-dashed" style={{ top: '67%' }} />
+        {/* SVG half-court background */}
+        <svg
+          viewBox="0 0 100 100"
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: 12,
+            background: 'linear-gradient(180deg, #4338ca 0%, #4f46e5 40%, #6366f1 100%)',
+            display: 'block',
+          }}
+        >
+          {/* Court border */}
+          <rect x="3" y="5" width="94" height="90" fill="none" stroke="white" strokeWidth="0.6" strokeOpacity="0.7" />
 
-        {/* Zone labels */}
-        <div className="absolute left-2 text-white text-opacity-50 text-xs font-medium" style={{ top: '16%' }}>
-          ⚡ Attack Zone
-        </div>
-        <div className="absolute left-2 text-white text-opacity-50 text-xs font-medium" style={{ top: '50%', transform: 'translateY(-50%)' }}>
-          ⚪ Center
-        </div>
-        <div className="absolute left-2 text-white text-opacity-50 text-xs font-medium" style={{ top: '78%' }}>
-          🛡️ Defense Zone
-        </div>
+          {/* Net (center line) — thick, at top */}
+          <line x1="0" y1="5" x2="100" y2="5" stroke="white" strokeWidth="1.5" strokeOpacity="0.9" />
+          <text x="50" y="3.8" textAnchor="middle" fill="white" fontSize="2.8" fontWeight="bold" opacity="0.7">NET</text>
 
-        {/* Court name label */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-opacity-10 text-6xl font-black pointer-events-none select-none">
-          🏐
-        </div>
+          {/* 3-metre attack line — dashed */}
+          <line x1="3" y1="35" x2="97" y2="35" stroke="white" strokeWidth="0.8" strokeOpacity="0.6" strokeDasharray="4,3" />
+          <text x="1.5" y="34.2" textAnchor="end" fill="white" fontSize="2.4" opacity="0.55">3m</text>
 
-        {/* Position slots */}
-        {positions.map((pos) => {
-          const player = getPlayerForPosition(pos.id);
-          const isSelected = selectedPositionId === pos.id;
+          {/* Subtle mid-row divider (for visual position zone guidance) */}
+          <line x1="3" y1="50" x2="97" y2="50" stroke="white" strokeWidth="0.3" strokeOpacity="0.15" strokeDasharray="2,4" />
 
+          {/* Vertical zone dividers — aligned to getCourtPosition thresholds */}
+          <line x1={ZONE_X_LEFT} y1="5" x2={ZONE_X_LEFT} y2="95" stroke="white" strokeWidth="0.3" strokeOpacity="0.1" />
+          <line x1={ZONE_X_RIGHT} y1="5" x2={ZONE_X_RIGHT} y2="95" stroke="white" strokeWidth="0.3" strokeOpacity="0.1" />
+
+          {/* Position watermarks */}
+          {POSITION_LABELS.map(({ pos, x, y }) => (
+            <text
+              key={pos}
+              x={x}
+              y={y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill="white"
+              fontSize="16"
+              fontWeight="bold"
+              opacity="0.07"
+            >
+              {pos}
+            </text>
+          ))}
+        </svg>
+
+        {/* Player tokens (absolutely positioned over the SVG) */}
+        {assignments.map((a) => {
+          const player = players.find((p) => p.id === a.playerId);
+          if (!player) return null;
           return (
-            <button
-              key={pos.id}
-              onClick={() => onPositionClick(pos.id)}
-              title={pos.label}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 w-11 h-11 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all focus:outline-none ${
-                isSelected
-                  ? 'ring-4 ring-yellow-300 scale-110'
-                  : 'hover:scale-105'
-              } ${player ? 'border-white' : 'border-white border-opacity-60 border-dashed'}`}
+            <div
+              key={a.playerId}
+              draggable
+              onDragStart={(e) => { e.dataTransfer.setData('playerId', a.playerId); e.dataTransfer.effectAllowed = 'move'; }}
+              onDoubleClick={() => onPlayerRemove(a.playerId)}
+              title={`#${player.number} ${player.name} — Pos ${a.courtPosition}\nDouble-click to remove`}
               style={{
-                left: `${pos.x}%`,
-                top: `${pos.y}%`,
-                backgroundColor: player
-                  ? getPositionColor(player.position)
-                  : 'rgba(255,255,255,0.15)',
-                color: player ? 'white' : 'rgba(255,255,255,0.7)',
+                position: 'absolute',
+                left: `${a.x}%`,
+                top: `${a.y}%`,
+                transform: 'translate(-50%, -50%)',
+                width: 38,
+                height: 38,
+                borderRadius: '50%',
+                backgroundColor: getPositionColor(player.position),
+                border: '2.5px solid white',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 13,
+                fontWeight: 700,
+                color: 'white',
+                cursor: 'grab',
+                userSelect: 'none',
+                zIndex: 10,
               }}
             >
-              {player ? player.number : '+'}
-            </button>
+              {player.number}
+            </div>
           );
         })}
       </div>
     </div>
   );
 }
+
