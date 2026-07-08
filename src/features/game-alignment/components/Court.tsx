@@ -19,6 +19,17 @@ const POSITION_LABELS: { pos: number; x: number; y: number }[] = [
   { pos: 1, x: 84, y: 75 },
 ];
 
+// Court boundary clamp limits (in % of the container).
+// These match the SVG court border drawn at x=3/97 and y=5/95.
+const CLAMP_X_MIN = 3;
+const CLAMP_X_MAX = 97;
+const CLAMP_Y_MIN = 5;
+const CLAMP_Y_MAX = 95;
+
+// Vertical zone boundary (must match getCourtPosition thresholds in courtConfig.ts)
+const ZONE_X_LEFT = 33;
+const ZONE_X_RIGHT = 66;
+
 export function Court({ assignments, players, onPlayerDrop, onPlayerRemove }: CourtProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -32,8 +43,8 @@ export function Court({ assignments, players, onPlayerDrop, onPlayerRemove }: Co
     const playerId = e.dataTransfer.getData('playerId');
     if (!playerId || !containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    const x = Math.max(4, Math.min(96, ((e.clientX - rect.left) / rect.width) * 100));
-    const y = Math.max(6, Math.min(94, ((e.clientY - rect.top) / rect.height) * 100));
+    const x = Math.max(CLAMP_X_MIN, Math.min(CLAMP_X_MAX, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(CLAMP_Y_MIN, Math.min(CLAMP_Y_MAX, ((e.clientY - rect.top) / rect.height) * 100));
     onPlayerDrop(playerId, x, y);
   }
 
@@ -70,9 +81,9 @@ export function Court({ assignments, players, onPlayerDrop, onPlayerRemove }: Co
           {/* Subtle mid-row divider (for visual position zone guidance) */}
           <line x1="3" y1="50" x2="97" y2="50" stroke="white" strokeWidth="0.3" strokeOpacity="0.15" strokeDasharray="2,4" />
 
-          {/* Vertical zone dividers (light guides at x=33 and x=67) */}
-          <line x1="36" y1="5" x2="36" y2="95" stroke="white" strokeWidth="0.3" strokeOpacity="0.1" />
-          <line x1="64" y1="5" x2="64" y2="95" stroke="white" strokeWidth="0.3" strokeOpacity="0.1" />
+          {/* Vertical zone dividers — aligned to getCourtPosition thresholds */}
+          <line x1={ZONE_X_LEFT} y1="5" x2={ZONE_X_LEFT} y2="95" stroke="white" strokeWidth="0.3" strokeOpacity="0.1" />
+          <line x1={ZONE_X_RIGHT} y1="5" x2={ZONE_X_RIGHT} y2="95" stroke="white" strokeWidth="0.3" strokeOpacity="0.1" />
 
           {/* Position watermarks */}
           {POSITION_LABELS.map(({ pos, x, y }) => (

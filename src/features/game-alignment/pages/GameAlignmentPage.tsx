@@ -211,22 +211,17 @@ export function GameAlignmentPage() {
                             {pos}
                           </Box>
                           {player ? (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Avatar
-                                sx={{
-                                  width: 28,
-                                  height: 28,
-                                  bgcolor: getPositionColor(player.position),
-                                  fontSize: '0.7rem',
-                                  fontWeight: 700,
-                                }}
-                              >
-                                {player.number}
-                              </Avatar>
-                              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                #{player.number}
-                              </Typography>
-                            </Box>
+                            <Avatar
+                              sx={{
+                                width: 28,
+                                height: 28,
+                                bgcolor: getPositionColor(player.position),
+                                fontSize: '0.7rem',
+                                fontWeight: 700,
+                              }}
+                            >
+                              {player.number}
+                            </Avatar>
                           ) : (
                             <Typography variant="body2" color="text.disabled">—</Typography>
                           )}
