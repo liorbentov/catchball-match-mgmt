@@ -32,7 +32,7 @@ export function MoveCanvas({ paths, onChange }: MoveCanvasProps) {
     const rect = svg.getBoundingClientRect();
     return {
       x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 130,
     };
   }
 
