@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { useLocalStorage } from '../../../shared/hooks/useLocalStorage';
 import { generateId } from '../../../shared/utils';
-import { GameAlignment, PlayerAssignment } from '../types';
+import type { GameAlignment } from '../types';
 import { COURT_POSITIONS } from '../components/courtConfig';
 
 export function useGameAlignment() {

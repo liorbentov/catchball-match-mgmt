@@ -1,6 +1,6 @@
 import { useLocalStorage } from '../../../shared/hooks/useLocalStorage';
 import { generateId } from '../../../shared/utils';
-import { Move, MoveCategory, MovePath } from '../types';
+import type { Move, MovePath } from '../types';
 
 const DEMO_MOVES: Move[] = [
   {

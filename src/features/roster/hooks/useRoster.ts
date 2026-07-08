@@ -1,6 +1,6 @@
 import { useLocalStorage } from '../../../shared/hooks/useLocalStorage';
 import { generateId } from '../../../shared/utils';
-import { Player, Season, Game } from '../types';
+import type { Player, Season, Game } from '../types';
 
 const DEMO_SEASON: Season = {
   id: 'season-1',

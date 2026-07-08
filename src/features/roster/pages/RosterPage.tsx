@@ -4,8 +4,7 @@ import { PlayerCard } from '../components/PlayerCard';
 import { PlayerForm } from '../components/PlayerForm';
 import { SeasonSelector, GameList } from '../components/SeasonSelector';
 import { Button } from '../../../shared/components';
-import { Player } from '../types';
-import { generateId } from '../../../shared/utils';
+import type { Player } from '../types';
 
 export function RosterPage() {
   const {

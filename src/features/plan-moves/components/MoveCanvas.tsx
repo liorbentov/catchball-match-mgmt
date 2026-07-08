@@ -1,5 +1,5 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
-import { MovePath, Point } from '../types';
+import { useRef, useState } from 'react';
+import type { MovePath, Point } from '../types';
 import { generateId } from '../../../shared/utils';
 import { Button } from '../../../shared/components';
 

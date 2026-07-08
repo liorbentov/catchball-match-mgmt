@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoveCategory } from '../types';
+import type { MoveCategory } from '../types';
 import { Button } from '../../../shared/components';
 
 const CATEGORIES: MoveCategory[] = ['serve', 'catch', 'attack', 'defense', 'transition', 'set-play'];

@@ -1,4 +1,4 @@
-import { Season } from '../types';
+import type { Season } from '../types';
 import { Button } from '../../../shared/components';
 import { formatDate } from '../../../shared/utils';
 

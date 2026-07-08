@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Player, PlayerPosition } from '../../../shared/types';
+import type { Player, PlayerPosition } from '../../../shared/types';
 import { Button } from '../../../shared/components';
 
 const positions: PlayerPosition[] = ['attacker', 'defender', 'catcher', 'center', 'bench'];
