@@ -30,9 +30,13 @@ export function useFirestoreStorage<T>(key: string, initialValue: T) {
         ? (value as (prev: T) => T)(storedValueRef.current)
         : value;
     // Optimistically update local state so the UI responds immediately.
+    const previous = storedValueRef.current;
     setStoredValueInternal(resolved);
     const docRef = doc(db, 'appData', key);
-    void setDoc(docRef, { value: resolved });
+    setDoc(docRef, { value: resolved }).catch(() => {
+      // Revert optimistic update if the write fails.
+      setStoredValueInternal(previous);
+    });
   }
 
   return [storedValue, setStoredValue] as const;
