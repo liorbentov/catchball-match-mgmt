@@ -9,8 +9,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
-
-const positions: PlayerPosition[] = ['attacker', 'defender', 'catcher', 'center', 'bench'];
+import { PLAYER_POSITIONS } from '../../../shared/types';
 
 interface PlayerFormProps {
   initial?: Partial<Player>;
@@ -21,7 +20,7 @@ interface PlayerFormProps {
 export function PlayerForm({ initial, onSubmit, onCancel }: PlayerFormProps) {
   const [name, setName] = useState(initial?.name ?? '');
   const [number, setNumber] = useState(String(initial?.number ?? ''));
-  const [position, setPosition] = useState<PlayerPosition>(initial?.position ?? 'defender');
+  const [position, setPosition] = useState<PlayerPosition>(initial?.position ?? 'antena');
   const [isActive, setIsActive] = useState(initial?.isActive ?? true);
 
   function handleSubmit(e: React.FormEvent) {
@@ -59,7 +58,7 @@ export function PlayerForm({ initial, onSubmit, onCancel }: PlayerFormProps) {
           label="Position"
           onChange={(e) => setPosition(e.target.value as PlayerPosition)}
         >
-          {positions.map((p) => (
+          {PLAYER_POSITIONS.map((p) => (
             <MenuItem key={p} value={p}>
               {p.charAt(0).toUpperCase() + p.slice(1)}
             </MenuItem>

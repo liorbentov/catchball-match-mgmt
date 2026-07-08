@@ -7,11 +7,9 @@ export interface Player {
   avatar?: string;
 }
 
-export type PlayerPosition =
-  | 'antena'
-  | 'playmaker'
-  | 'libro'
-  | 'bench';
+export const PLAYER_POSITIONS = ['antena', 'playmaker', 'libro', 'bench'] as const;
+
+export type PlayerPosition = (typeof PLAYER_POSITIONS)[number];
 
 export interface Season {
   id: string;
