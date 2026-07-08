@@ -4,7 +4,18 @@
 //
 // Coordinate space: x=0 left, x=100 right; y=0 net (top), y=100 back line (bottom)
 
-export function getCourtPosition(x: number, y: number): 1 | 2 | 3 | 4 | 5 | 6 {
+export type CourtPosition = 1 | 2 | 3 | 4 | 5 | 6;
+
+export const COURT_POSITIONS = [
+  { id: '4', number: 4, label: 'Front Left' },
+  { id: '3', number: 3, label: 'Front Center' },
+  { id: '2', number: 2, label: 'Front Right' },
+  { id: '5', number: 5, label: 'Back Left' },
+  { id: '6', number: 6, label: 'Back Center' },
+  { id: '1', number: 1, label: 'Back Right' },
+] as const;
+
+export function getCourtPosition(x: number, y: number): CourtPosition {
   const isBackRow = y > 50;
   if (!isBackRow) {
     if (x < 33) return 4;
