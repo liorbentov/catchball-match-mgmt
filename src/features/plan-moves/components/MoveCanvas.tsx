@@ -7,6 +7,9 @@ import Typography from '@mui/material/Typography';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
+const SVG_VIEWBOX_WIDTH = 100;
+const SVG_VIEWBOX_HEIGHT = 130;
+
 const PATH_COLORS = ['#6366f1', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6', '#06b6d4'];
 const PATH_TYPES: { type: MovePath['type']; label: string; dash: string }[] = [
   { type: 'run', label: '🏃 Run', dash: 'none' },
@@ -31,8 +34,8 @@ export function MoveCanvas({ paths, onChange }: MoveCanvasProps) {
     if (!svg) return { x: 0, y: 0 };
     const rect = svg.getBoundingClientRect();
     return {
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 130,
+      x: ((e.clientX - rect.left) / rect.width) * SVG_VIEWBOX_WIDTH,
+      y: ((e.clientY - rect.top) / rect.height) * SVG_VIEWBOX_HEIGHT,
     };
   }
 
@@ -133,7 +136,7 @@ export function MoveCanvas({ paths, onChange }: MoveCanvasProps) {
       {/* SVG canvas */}
       <svg
         ref={svgRef}
-        viewBox="0 0 100 130"
+        viewBox={`0 0 ${SVG_VIEWBOX_WIDTH} ${SVG_VIEWBOX_HEIGHT}`}
         style={{
           width: '100%',
           borderRadius: 12,
