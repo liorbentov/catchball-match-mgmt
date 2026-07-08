@@ -8,10 +8,9 @@ export interface Player {
 }
 
 export type PlayerPosition =
-  | 'attacker'
-  | 'defender'
-  | 'catcher'
-  | 'center'
+  | 'antena'
+  | 'playmaker'
+  | 'libro'
   | 'bench';
 
 export interface Season {
