@@ -35,7 +35,7 @@ export function DashboardPage() {
           <span className="mr-2">🏐</span> CatchCoach
         </h1>
         <p className="text-gray-500 mt-2 text-lg">
-          Your catchball coaching command centre — manage your roster, plan alignments, and draw up plays.
+          Your catchball coaching command center — manage your roster, plan alignments, and draw up plays.
         </p>
       </div>
 
