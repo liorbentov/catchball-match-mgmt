@@ -161,6 +161,7 @@ export function GameAlignmentPage() {
                           alignItems: 'center',
                           gap: 1.25,
                           cursor: 'grab',
+                          '&:active': { cursor: 'grabbing' },
                           borderRadius: 2,
                           px: 1,
                           py: 0.5,
