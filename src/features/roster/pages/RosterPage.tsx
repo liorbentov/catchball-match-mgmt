@@ -5,6 +5,13 @@ import { PlayerForm } from '../components/PlayerForm';
 import { SeasonSelector, GameList } from '../components/SeasonSelector';
 import { Button } from '../../../shared/components';
 import type { Player } from '../types';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Divider from '@mui/material/Divider';
 
 export function RosterPage() {
   const {
@@ -78,16 +85,18 @@ export function RosterPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Roster Management</h1>
-        <p className="text-gray-500 mt-1">Manage your squad and game schedule per season.</p>
-      </div>
+      <Box>
+        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>Roster Management</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Manage your squad and game schedule per season.
+        </Typography>
+      </Box>
 
       {/* Season selector */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-gray-800">Seasons</h2>
+      <Box component="section" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>Seasons</Typography>
         <SeasonSelector
           seasons={seasons}
           selectedId={selectedSeasonId}
@@ -95,95 +104,145 @@ export function RosterPage() {
           onAdd={() => setShowSeasonForm(true)}
         />
         {showSeasonForm && (
-          <form onSubmit={handleAddSeason} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3 max-w-sm">
-            <h3 className="font-medium text-gray-800">New Season</h3>
-            <input
-              type="text"
+          <Paper
+            component="form"
+            onSubmit={handleAddSeason}
+            variant="outlined"
+            sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 360, borderRadius: 2 }}
+          >
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>New Season</Typography>
+            <TextField
+              label="Season name"
               required
-              placeholder="Season name"
+              size="small"
+              fullWidth
               value={seasonName}
               onChange={(e) => setSeasonName(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
             />
-            <div className="flex gap-2">
-              <input type="date" required value={seasonStart} onChange={(e) => setSeasonStart(e.target.value)} className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm" />
-              <input type="date" required value={seasonEnd} onChange={(e) => setSeasonEnd(e.target.value)} className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm" />
-            </div>
-            <div className="flex gap-2">
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <TextField
+                label="Start date"
+                type="date"
+                required
+                size="small"
+                fullWidth
+                slotProps={{ inputLabel: { shrink: true } }}
+                value={seasonStart}
+                onChange={(e) => setSeasonStart(e.target.value)}
+              />
+              <TextField
+                label="End date"
+                type="date"
+                required
+                size="small"
+                fullWidth
+                slotProps={{ inputLabel: { shrink: true } }}
+                value={seasonEnd}
+                onChange={(e) => setSeasonEnd(e.target.value)}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
               <Button type="button" variant="secondary" size="sm" onClick={() => setShowSeasonForm(false)}>Cancel</Button>
               <Button type="submit" size="sm">Add Season</Button>
-            </div>
-          </form>
+            </Box>
+          </Paper>
         )}
-      </section>
+      </Box>
+
+      <Divider />
 
       {/* Games for season */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-800">
+      <Box component="section" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Games — {selectedSeason?.name}
-          </h2>
+          </Typography>
           <Button size="sm" onClick={() => setShowGameForm(true)}>+ Add Game</Button>
-        </div>
+        </Box>
         {showGameForm && (
-          <form onSubmit={handleAddGame} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3 max-w-md">
-            <h3 className="font-medium text-gray-800">Schedule Game</h3>
-            <input
-              type="text"
+          <Paper
+            component="form"
+            onSubmit={handleAddGame}
+            variant="outlined"
+            sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 460, borderRadius: 2 }}
+          >
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Schedule Game</Typography>
+            <TextField
+              label="Opponent name"
               required
-              placeholder="Opponent name"
+              size="small"
+              fullWidth
               value={gameOpponent}
               onChange={(e) => setGameOpponent(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
             />
-            <div className="flex gap-2">
-              <input type="date" required value={gameDate} onChange={(e) => setGameDate(e.target.value)} className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm" />
-              <input type="text" placeholder="Location" value={gameLocation} onChange={(e) => setGameLocation(e.target.value)} className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm" />
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="isHome" checked={gameIsHome} onChange={(e) => setGameIsHome(e.target.checked)} className="rounded" />
-              <label htmlFor="isHome" className="text-sm text-gray-700">Home game</label>
-            </div>
-            <div className="flex gap-2">
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <TextField
+                label="Date"
+                type="date"
+                required
+                size="small"
+                fullWidth
+                slotProps={{ inputLabel: { shrink: true } }}
+                value={gameDate}
+                onChange={(e) => setGameDate(e.target.value)}
+              />
+              <TextField
+                label="Location"
+                size="small"
+                fullWidth
+                value={gameLocation}
+                onChange={(e) => setGameLocation(e.target.value)}
+                placeholder="TBD"
+              />
+            </Box>
+            <FormControlLabel
+              control={
+                <Checkbox checked={gameIsHome} onChange={(e) => setGameIsHome(e.target.checked)} size="small" />
+              }
+              label="Home game"
+            />
+            <Box sx={{ display: 'flex', gap: 1 }}>
               <Button type="button" variant="secondary" size="sm" onClick={() => setShowGameForm(false)}>Cancel</Button>
               <Button type="submit" size="sm">Schedule</Button>
-            </div>
-          </form>
+            </Box>
+          </Paper>
         )}
         <GameList games={seasonGames} onRemove={removeGame} />
-      </section>
+      </Box>
+
+      <Divider />
 
       {/* Player roster */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-800">
+      <Box component="section" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Players ({players.length})
-          </h2>
+          </Typography>
           <Button size="sm" onClick={() => setShowPlayerForm(true)}>+ Add Player</Button>
-        </div>
+        </Box>
 
         {showPlayerForm && (
-          <div className="bg-white border border-gray-200 rounded-lg p-4 max-w-md">
-            <h3 className="font-medium text-gray-800 mb-4">New Player</h3>
+          <Paper variant="outlined" sx={{ p: 2, maxWidth: 460, borderRadius: 2 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 2 }}>New Player</Typography>
             <PlayerForm
               onSubmit={handleAddPlayer}
               onCancel={() => setShowPlayerForm(false)}
             />
-          </div>
+          </Paper>
         )}
 
         {editingPlayer && (
-          <div className="bg-white border border-indigo-300 rounded-lg p-4 max-w-md">
-            <h3 className="font-medium text-gray-800 mb-4">Edit Player</h3>
+          <Paper variant="outlined" sx={{ p: 2, maxWidth: 460, borderRadius: 2, borderColor: 'primary.light' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 2 }}>Edit Player</Typography>
             <PlayerForm
               initial={editingPlayer}
               onSubmit={handleEditPlayer}
               onCancel={() => setEditingPlayer(null)}
             />
-          </div>
+          </Paper>
         )}
 
-        <div className="space-y-3">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           {players.map((p) => (
             <PlayerCard
               key={p.id}
@@ -193,12 +252,12 @@ export function RosterPage() {
             />
           ))}
           {players.length === 0 && (
-            <div className="text-center py-8 text-gray-400">
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
               No players yet. Add your first player!
-            </div>
+            </Typography>
           )}
-        </div>
-      </section>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }

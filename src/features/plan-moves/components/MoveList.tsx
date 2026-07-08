@@ -1,13 +1,17 @@
 import type { Move, MoveCategory } from '../types';
-import { Button } from '../../../shared/components';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import Chip from '@mui/material/Chip';
+import IconButton from '@mui/material/IconButton';
 
-const CATEGORY_COLORS: Record<MoveCategory, string> = {
-  serve: 'bg-purple-100 text-purple-700',
-  catch: 'bg-green-100 text-green-700',
-  attack: 'bg-red-100 text-red-700',
-  defense: 'bg-blue-100 text-blue-700',
-  transition: 'bg-orange-100 text-orange-700',
-  'set-play': 'bg-indigo-100 text-indigo-700',
+const CATEGORY_COLORS: Record<MoveCategory, { bg: string; color: string }> = {
+  serve: { bg: '#f3e8ff', color: '#7e22ce' },
+  catch: { bg: '#dcfce7', color: '#15803d' },
+  attack: { bg: '#fee2e2', color: '#b91c1c' },
+  defense: { bg: '#dbeafe', color: '#1d4ed8' },
+  transition: { bg: '#ffedd5', color: '#c2410c' },
+  'set-play': { bg: '#e0e7ff', color: '#4338ca' },
 };
 
 const CATEGORY_ICONS: Record<MoveCategory, string> = {
@@ -45,70 +49,87 @@ export function MoveList({
     : moves.filter((m) => m.category === filterCategory);
 
   return (
-    <div className="space-y-3">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {/* Category filter */}
-      <div className="flex flex-wrap gap-1.5">
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
         {CATEGORIES.map((cat) => (
-          <button
+          <Chip
             key={cat}
+            label={cat === 'all' ? 'All' : `${CATEGORY_ICONS[cat as MoveCategory]} ${cat}`}
+            size="small"
             onClick={() => onFilterChange(cat)}
-            className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
-              filterCategory === cat
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-300'
-            }`}
-          >
-            {cat === 'all' ? 'All' : `${CATEGORY_ICONS[cat]} ${cat}`}
-          </button>
+            color={filterCategory === cat ? 'primary' : 'default'}
+            variant={filterCategory === cat ? 'filled' : 'outlined'}
+            clickable
+          />
         ))}
-      </div>
+      </Box>
 
       {/* Move cards */}
-      <div className="space-y-2">
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {filtered.length === 0 && (
-          <p className="text-gray-400 text-sm text-center py-4">No moves in this category.</p>
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+            No moves in this category.
+          </Typography>
         )}
-        {filtered.map((m) => (
-          <div
-            key={m.id}
-            onClick={() => onSelect(m.id)}
-            className={`rounded-lg border p-3 cursor-pointer transition-all ${
-              selectedId === m.id
-                ? 'border-indigo-400 bg-indigo-50 shadow-sm'
-                : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-            }`}
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium text-gray-900 text-sm">{m.name}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_COLORS[m.category]}`}>
-                    {CATEGORY_ICONS[m.category]} {m.category}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{m.description}</p>
-                {m.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {m.tags.map((tag) => (
-                      <span key={tag} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => { e.stopPropagation(); onDelete(m.id); }}
-                className="flex-shrink-0 text-gray-400"
-              >
-                🗑️
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+        {filtered.map((m) => {
+          const catStyle = CATEGORY_COLORS[m.category];
+          return (
+            <Paper
+              key={m.id}
+              variant="outlined"
+              onClick={() => onSelect(m.id)}
+              sx={{
+                p: 1.5,
+                cursor: 'pointer',
+                borderRadius: 2,
+                borderColor: selectedId === m.id ? 'primary.main' : 'divider',
+                bgcolor: selectedId === m.id ? '#eef2ff' : 'background.paper',
+                transition: 'box-shadow 0.15s, border-color 0.15s',
+                '&:hover': { boxShadow: 2 },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{m.name}</Typography>
+                    <Chip
+                      label={`${CATEGORY_ICONS[m.category]} ${m.category}`}
+                      size="small"
+                      sx={{ bgcolor: catStyle.bg, color: catStyle.color, fontWeight: 500, height: 20, fontSize: '0.7rem' }}
+                    />
+                  </Box>
+                  <Typography variant="caption" color="text.secondary"
+                    sx={{ display: '-webkit-box', mt: 0.5, overflow: 'hidden', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+                  >
+                    {m.description}
+                  </Typography>
+                  {m.tags.length > 0 && (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.75 }}>
+                      {m.tags.map((tag) => (
+                        <Typography
+                          key={tag}
+                          variant="caption"
+                          sx={{ px: 0.75, py: 0.25, bgcolor: 'grey.100', borderRadius: 1, color: 'text.secondary' }}
+                        >
+                          #{tag}
+                        </Typography>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+                <IconButton
+                  size="small"
+                  onClick={(e) => { e.stopPropagation(); onDelete(m.id); }}
+                  sx={{ color: 'text.disabled', flexShrink: 0 }}
+                >
+                  🗑️
+                </IconButton>
+              </Box>
+            </Paper>
+          );
+        })}
+      </Box>
+    </Box>
   );
 }

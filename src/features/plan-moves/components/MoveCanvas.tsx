@@ -2,6 +2,10 @@ import { useRef, useState } from 'react';
 import type { MovePath, Point } from '../types';
 import { generateId } from '../../../shared/utils';
 import { Button } from '../../../shared/components';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 const PATH_COLORS = ['#6366f1', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6', '#06b6d4'];
 const PATH_TYPES: { type: MovePath['type']; label: string; dash: string }[] = [
@@ -80,43 +84,62 @@ export function MoveCanvas({ paths, onChange }: MoveCanvasProps) {
     PATH_TYPES.find((t) => t.type === type)?.dash ?? 'none';
 
   return (
-    <div className="space-y-3">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
       {/* Drawing tools */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-1.5">
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5 }}>
+        {/* Color picker */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           {PATH_COLORS.map((c) => (
-            <button
+            <Box
               key={c}
+              component="button"
               onClick={() => setSelectedColor(c)}
-              className={`w-6 h-6 rounded-full border-2 transition-transform ${selectedColor === c ? 'scale-125 border-gray-800' : 'border-transparent'}`}
-              style={{ backgroundColor: c }}
+              sx={{
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                bgcolor: c,
+                border: selectedColor === c ? '3px solid #1a1a1a' : '3px solid transparent',
+                cursor: 'pointer',
+                transform: selectedColor === c ? 'scale(1.2)' : 'scale(1)',
+                transition: 'transform 0.15s',
+                padding: 0,
+              }}
               title={c}
             />
           ))}
-        </div>
-        <div className="flex items-center gap-1">
+        </Box>
+
+        {/* Path type */}
+        <ToggleButtonGroup
+          value={selectedType}
+          exclusive
+          onChange={(_, val) => { if (val) setSelectedType(val); }}
+          size="small"
+        >
           {PATH_TYPES.map(({ type, label }) => (
-            <button
-              key={type}
-              onClick={() => setSelectedType(type)}
-              className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${selectedType === type ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-300'}`}
-            >
+            <ToggleButton key={type} value={type} sx={{ fontSize: '0.75rem', px: 1.5, py: 0.5 }}>
               {label}
-            </button>
+            </ToggleButton>
           ))}
-        </div>
-        <div className="flex gap-1 ml-auto">
+        </ToggleButtonGroup>
+
+        <Box sx={{ display: 'flex', gap: 0.75, ml: 'auto' }}>
           <Button variant="secondary" size="sm" onClick={undoLast} disabled={paths.length === 0}>↩ Undo</Button>
           <Button variant="danger" size="sm" onClick={clearAll} disabled={paths.length === 0}>Clear</Button>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* SVG canvas */}
       <svg
         ref={svgRef}
         viewBox="0 0 100 130"
-        className="w-full rounded-xl border-4 border-indigo-400 cursor-crosshair select-none"
         style={{
+          width: '100%',
+          borderRadius: 12,
+          border: '4px solid #818cf8',
+          cursor: 'crosshair',
+          userSelect: 'none',
           background: 'linear-gradient(180deg, #4f46e5 0%, #6366f1 50%, #4f46e5 100%)',
           touchAction: 'none',
         }}
@@ -165,7 +188,9 @@ export function MoveCanvas({ paths, onChange }: MoveCanvasProps) {
         <text x="2" y="96" fill="white" fontSize="3.5" opacity="0.5">🛡️ Defense</text>
       </svg>
 
-      <p className="text-xs text-gray-400 text-center">Click and drag to draw paths on the court</p>
-    </div>
+      <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center', display: 'block' }}>
+        Click and drag to draw paths on the court
+      </Typography>
+    </Box>
   );
 }
